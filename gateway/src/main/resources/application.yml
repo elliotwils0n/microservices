@@ -1,0 +1,24 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: user_microservice
+          uri: lb://USER
+          predicates:
+            - Path=/service/user/**
+          filters:
+            - StripPrefix=2
+        - id: verification_microservice
+          uri: lb://VERIFICATION
+          predicates:
+            - Path=/service/verification/**
+          filters:
+            - StripPrefix=2
+

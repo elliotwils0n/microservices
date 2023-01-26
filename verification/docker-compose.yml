@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+
+  microservices-verification:
+#    container_name: microservices-verification
+    build:
+      context: .
+      dockerfile: verification.Dockerfile
+    volumes:
+      - microservices-m2-repository:/home/app/.m2
+    networks:
+      - microservices-network-main
+      - microservices-network-verification
+
+volumes:
+  microservices-m2-repository:
+    name: microservices-m2-repository
+    external: true
+
+networks:
+  microservices-network-main:
+    name: microservices-network-main
+    external: true
+  microservices-network-verification:
+    name: microservices-network-verification
+    external: true

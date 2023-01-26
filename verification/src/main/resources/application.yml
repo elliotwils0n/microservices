@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: verification
+  cloud:
+    stream:
+      binders:
+        rabbit:
+          type: rabbit
+      default-binder: rabbit
+      function:
+        definition: userEventSink
+        bindings:
+          userEventSink-in-0: user-event-consumer
+      bindings:
+        user-event-consumer:
+          destination: user-event
+          group: ${spring.application.name}
+          binder: rabbit
+      rabbit:
+        bindings:
+          user-event-consumer:
+            consumer:
+              prefix: ${microservices.environment}/
+  jpa:
+    show_sql: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+      show_sql: false
+      format_sql: true
+  liquibase:
+    change-log: classpath:database/liquibase-changeLog.xml
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    contexts: ${spring.profiles.active}
+    database-change-log-table: liquibase_changelog
+    database-change-log-lock-table: liquibase_changelog_lock
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+logging:
+  level:
+    io:
+      github:
+        elliotwils0n:
+          microservices:
+            verification: INFO

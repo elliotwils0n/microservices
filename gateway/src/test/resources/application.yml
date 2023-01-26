@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    discovery:
+      enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+microservices:
+  environment: test

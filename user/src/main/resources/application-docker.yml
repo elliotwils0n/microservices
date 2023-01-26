@@ -1,0 +1,30 @@
+server:
+  port: 8080
+spring:
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+  datasource:
+    url: jdbc:postgresql://postgres:5432/postgres
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+microservices:
+  environment: docker
+logging:
+  level:
+    io:
+      github:
+        elliotwils0n:
+          microservices:
+            user: DEBUG

@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: eureka-server
+  cloud:
+    discovery:
+      enabled: false

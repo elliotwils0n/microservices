@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+
+  microservices-user:
+#    container_name: microservices-user
+    build:
+      context: .
+      dockerfile: user.Dockerfile
+    volumes:
+      - microservices-m2-repository:/home/app/.m2
+    networks:
+      - microservices-network-main
+      - microservices-network-user
+
+volumes:
+  microservices-m2-repository:
+    name: microservices-m2-repository
+    external: true
+
+networks:
+  microservices-network-main:
+    name: microservices-network-main
+    external: true
+  microservices-network-user:
+    name: microservices-network-user
+    external: true

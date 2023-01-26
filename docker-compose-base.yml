@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  microservices-rabbitmq:
+    container_name: microservices-rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      # - "5672:5672"
+      - "15672:15672"
+    networks:
+      microservices-network-main:
+        aliases:
+          - rabbitmq
+
+  microservices-bom:
+    container_name: microservices-bom
+    build:
+      context: ./bom/.
+      dockerfile: bom.Dockerfile
+    volumes:
+      - microservices-m2-repository:/home/app/.m2
+    networks:
+      - microservices-network-tmp
+
+  microservices-core:
+    depends_on:
+      microservices-bom:
+        condition: service_completed_successfully
+    container_name: microservices-core
+    build:
+      context: ./core/.
+      dockerfile: core.Dockerfile
+    volumes:
+      - microservices-m2-repository:/home/app/.m2
+    networks:
+      - microservices-network-tmp
+
+  microservices-eureka-server:
+    depends_on:
+      microservices-bom:
+        condition: service_completed_successfully
+    container_name: microservices-eureka-server
+    build:
+      context: ./eureka-server/.
+      dockerfile: eureka-server.Dockerfile
+    ports:
+      - "8761:8761"
+    volumes:
+      - microservices-m2-repository:/home/app/.m2
+    networks:
+      microservices-network-main:
+        aliases:
+          - eureka-server
+
+  microservices-gateway:
+    depends_on:
+      microservices-bom:
+        condition: service_completed_successfully
+      microservices-core:
+        condition: service_completed_successfully
+      microservices-eureka-server:
+        condition: service_started
+    container_name: microservices-gateway
+    build:
+      context: ./gateway/.
+      dockerfile: gateway.Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - microservices-m2-repository:/home/app/.m2
+    networks:
+      - microservices-network-main
+
+  microservices-user-database:
+    container_name: microservices-user-database
+    image: postgres:14.4
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - microservices-user-database-volume:/var/lib/postgresql/data
+    networks:
+      microservices-network-user:
+        aliases:
+          - postgres
+  
+  microservices-verification-database:
+    container_name: microservices-verification-database
+    image: postgres:14.4
+    expose:
+      - 5432
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - microservices-verification-database-volume:/var/lib/postgresql/data
+    networks:
+      microservices-network-verification:
+        aliases:
+          - postgres
+
+volumes:
+  microservices-m2-repository:
+    name: microservices-m2-repository
+    external: false
+  microservices-user-database-volume:
+    name: microservices-user-database-volume
+    external: false
+  microservices-verification-database-volume:
+    name: microservices-verification-database-volume
+    external: false
+
+networks:
+  microservices-network-main:
+    name: microservices-network-main
+    external: false
+  microservices-network-tmp:
+    name: microservices-network-tmp
+    external: false
+  microservices-network-user:
+    name: microservices-network-user
+    external: false
+  microservices-network-verification:
+    name: microservices-network-verification
+    external: false

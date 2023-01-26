@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  microservices-rabbitmq:
+    extends:
+      file: ./docker-compose-base.yml
+      service: microservices-rabbitmq
+
+  microservices-bom:
+    extends:
+      file: ./docker-compose-base.yml
+      service: microservices-bom
+
+  microservices-core:
+    extends:
+      file: ./docker-compose-base.yml
+      service: microservices-core
+
+  microservices-eureka-server:
+    extends:
+      file: ./docker-compose-base.yml
+      service: microservices-eureka-server
+
+  microservices-gateway:
+    extends:
+      file: ./docker-compose-base.yml
+      service: microservices-gateway
+
+  microservices-user-database:
+    extends:
+      file: ./docker-compose-base.yml
+      service: microservices-user-database
+    container_name: microservices-user-database
+
+  microservices-user:
+    extends:
+      file: ./user/docker-compose.yml
+      service: microservices-user
+    container_name: microservices-user
+    depends_on:
+      microservices-bom:
+        condition: service_completed_successfully
+      microservices-core:
+        condition: service_completed_successfully
+      microservices-eureka-server:
+        condition: service_started
+      microservices-user-database:
+        condition: service_started
+  
+  microservices-verification-database:
+    extends:
+      file: ./docker-compose-base.yml
+      service: microservices-verification-database
+    container_name: microservices-verification-database
+
+  microservices-verification:
+    extends:
+      file: ./verification/docker-compose.yml
+      service: microservices-verification
+    container_name: microservices-verification
+    depends_on:
+      microservices-bom:
+        condition: service_completed_successfully
+      microservices-core:
+        condition: service_completed_successfully
+      microservices-eureka-server:
+        condition: service_started
+      microservices-verification-database:
+        condition: service_started
+
+volumes:
+  microservices-m2-repository:
+    name: microservices-m2-repository
+    external: false
+  microservices-user-database-volume:
+    name: microservices-user-database-volume
+    external: false
+  microservices-verification-database-volume:
+    name: microservices-verification-database-volume
+    external: false
+
+networks:
+  microservices-network-main:
+    name: microservices-network-main
+    external: false
+  microservices-network-user:
+    name: microservices-network-user
+    external: false
+  microservices-network-verification:
+    name: microservices-network-verification
+    external: false
+  microservices-network-tmp:
+    name: microservices-network-tmp
+    external: false
